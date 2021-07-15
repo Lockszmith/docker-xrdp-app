@@ -16,7 +16,7 @@ RUN \
     echo "**** install runtime packages ****" \
     && apt-get update \
     && apt-get install -y --no-install-recommends \
-        git xclip
+        emacs git xclip
 
 # Default fonts
 ENV NNG_URL="https://github.com/google/fonts/raw/master/ofl/nanumgothic/NanumGothic-Regular.ttf" \
@@ -42,10 +42,12 @@ RUN \
 # add local files
 COPY root/ /
 
-# Setup Volume mount points
+VOLUME /config/.emacs.d
+VOLUME /config/private.emacs.d
+VOLUME /config/.spacemacs.d
 VOLUME /config/data
 
 # RUN \
-#   echo "**** initialize static storage ****" \
-#   && git clone ....
+#   echo "**** install emacs ****" \
+#   && git clone -b develop https://github.com/syl20bnr/spacemacs /config/.emacs.d
 

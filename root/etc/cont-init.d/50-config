@@ -3,9 +3,34 @@
 # make our folders
 mkdir -p /config/.spacemacs.d
 
-# initilzie application data folders
+# initilzie spacemacs
+if [ ! -e /config/.emacs.d/.git ]; then
+    echo '######################################################################'
+    rm -fR /config/.emacs.d
+    git clone -b develop https://github.com/syl20bnr/spacemacs /config/.emacs.d
+    cd /config/.emacs.d/private
+    mv * ../../private.emacs.d
+    cd /config/.emacs.d
+    rm -fR private
+    ln -s ../private.emacs.d private
+    echo '######################################################################'
+else
+    echo '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+    pushd /config/.emacs.d
+    git pull /config/.emacs.d
+    popd
+    echo '$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$$'
+fi
+echo '----------------------------------------------------------------------'
 
-# Setup credentials based on container's environment
+if [ -e /config/.spacemacs ]; then
+    if [ ! -e /config/.spacemacs.d/init.el ]; then
+        mv /config/.spacemacs /config/.spacemacs.d/init.el
+    else
+        mv /config/.spacemacs /config/.spacemacs.d/dot.spacemacs.backup
+    fi
+fi
+
 sed -i 's|"password":"abc",|"password":"kjhbouygiuvhgvghv",|' /gclient/app.js
 sed -i "s#process.env.PASSWORD || 'abc';#process.env.PASSWORD || 'kjhbouygiuvhgvghv';#" /gclient/maketoken.js
 if ([ -n "$GUAC_USER" ] || [ -n "$GUAC_PASS" ]) && [ -z "$PASSWORD" ]; then
