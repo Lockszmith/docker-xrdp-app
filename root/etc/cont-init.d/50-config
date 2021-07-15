@@ -1,12 +1,11 @@
 #!/usr/bin/with-contenv bash
 
 # make our folders
-mkdir -p /config/.config/calibre
+mkdir -p /config/.spacemacs.d
 
-# set webserver port on first install
-[[ ! -f /config/.config/calibre/server-config.txt ]] && \
-    echo "port 8081" > /config/.config/calibre/server-config.txt
+# initilzie application data folders
 
+# Setup credentials based on container's environment
 sed -i 's|"password":"abc",|"password":"kjhbouygiuvhgvghv",|' /gclient/app.js
 sed -i "s#process.env.PASSWORD || 'abc';#process.env.PASSWORD || 'kjhbouygiuvhgvghv';#" /gclient/maketoken.js
 if ([ -n "$GUAC_USER" ] || [ -n "$GUAC_PASS" ]) && [ -z "$PASSWORD" ]; then
@@ -37,5 +36,4 @@ fi
 
 # permissions
 chown -R abc:abc \
-    /config \
-    /opt/calibre
+    /config
