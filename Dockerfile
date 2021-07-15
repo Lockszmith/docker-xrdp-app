@@ -1,4 +1,6 @@
-FROM ghcr.io/linuxserver/baseimage-rdesktop-web:focal
+#FROM ghcr.io/linuxserver/baseimage-rdesktop-web:focal
+# focal (focal-0.1.1-ls17 currently has a bug with the apt signatures)
+FROM ghcr.io/linuxserver/baseimage-rdesktop-web:focal-0.1.1-ls16
 
 # set version label
 ARG BUILD_DATE
@@ -13,10 +15,25 @@ ENV \
   HOME="/config"
 
 RUN \
-    echo "**** install runtime packages ****" \
-    && apt-get update \
-    && apt-get install -y --no-install-recommends \
-        git xclip
+    echo "# 0. Update package database and install wget"              \
+    && apt-get update                                                 \
+    && apt-get install -y --no-install-recommends                     \
+        git wget
+
+RUN \
+    echo "# 1. Install signal's official public software signing key" \
+    && wget -O- https://updates.signal.org/desktop/apt/keys.asc |     \
+       gpg --dearmor > signal-desktop-keyring.gpg                     \
+    && cat signal-desktop-keyring.gpg |                               \
+       tee -a /usr/share/keyrings/signal-desktop-keyring.gpg          \
+       > /dev/null                                                    \
+    && echo "# 2. Add our repository to your list of repositories"    \
+    && echo 'deb [arch=amd64 signed-by=/usr/share/keyrings/signal-desktop-keyring.gpg] https://updates.signal.org/desktop/apt xenial main' |\
+      tee -a /etc/apt/sources.list.d/signal-xenial.list               \
+    && echo "# 3. Update your package database and install signal"    \
+    && apt-get update                                                 \
+    && apt-get install -y --no-install-recommends                     \
+        git xclip notification-daemon xauth signal-desktop
 
 # Default fonts
 ENV NNG_URL="https://github.com/google/fonts/raw/master/ofl/nanumgothic/NanumGothic-Regular.ttf" \
@@ -31,13 +48,12 @@ RUN echo "**** Setup fonts ****" \
     && fc-cache -fv || true
 
 RUN \
-  echo "**** cleanup ****" \
-  && apt-get remove -y wget \
-  && apt-get clean \
-  && rm -rf \
-    /tmp/* \
-    /var/lib/apt/lists/* \
-    /var/tmp/*
+  echo "**** cleanup ****"               \
+  && apt-get remove -y wget              \
+  && apt-get clean                       \
+      /tmp/*                             \
+      /var/lib/apt/lists/*               \
+      /var/tmp/*
 
 # add local files
 COPY root/ /

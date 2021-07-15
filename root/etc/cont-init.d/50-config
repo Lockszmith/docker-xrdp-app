@@ -3,7 +3,16 @@
 # make our folders
 mkdir -p /config/.spacemacs.d
 
-# initilzie application data folders
+# initilzie Signal so it will start in fullscreen
+if [ ! -e /config/.config/Signal ]; then
+    echo '## [ 1 ] #############################################################'
+    ln -s /config/data /config/.config/Signal
+fi
+if [ ! -e /config/.config/Signal/ephemeral.json ]; then
+    echo '## [ 2 ] #############################################################'
+    cp /opt/Signal/ephemeral.json /config/.config/Signal/ephemeral.json
+fi
+echo '----------------------------------------------------------------------'
 
 # Setup credentials based on container's environment
 sed -i 's|"password":"abc",|"password":"kjhbouygiuvhgvghv",|' /gclient/app.js
